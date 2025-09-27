@@ -1,0 +1,130 @@
+[
+  {
+    "model": "products.category",
+    "pk": 1,
+    "fields": {
+      "name": "T-Shirts",
+      "description": "Comfortable and stylish t-shirts for everyday wear",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.category",
+    "pk": 2,
+    "fields": {
+      "name": "Jeans",
+      "description": "Denim jeans in various styles and fits",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.category",
+    "pk": 3,
+    "fields": {
+      "name": "Dresses",
+      "description": "Elegant dresses for all occasions",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": 1,
+    "fields": {
+      "name": "Classic Cotton T-Shirt",
+      "description": "A comfortable cotton t-shirt perfect for everyday wear. Made from 100% premium cotton with a relaxed fit.",
+      "category": 1,
+      "price": "999.00",
+      "discount_price": "799.00",
+      "gender": "unisex",
+      "brand": "Fashion Store",
+      "material": "Cotton",
+      "is_active": true,
+      "is_featured": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": 2,
+    "fields": {
+      "name": "Slim Fit Jeans",
+      "description": "Modern slim fit jeans with premium denim fabric. Perfect for casual and semi-formal occasions.",
+      "category": 2,
+      "price": "2499.00",
+      "gender": "men",
+      "brand": "Fashion Store",
+      "material": "Denim",
+      "is_active": true,
+      "is_featured": false,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.productvariant",
+    "pk": 1,
+    "fields": {
+      "product": 1,
+      "size": "M",
+      "color": "Black",
+      "stock_quantity": 50,
+      "sku": "FS-TSH-BLK-M-001"
+    }
+  },
+  {
+    "model": "products.productvariant",
+    "pk": 2,
+    "fields": {
+      "product": 1,
+      "size": "L",
+      "color": "White",
+      "stock_quantity": 30,
+      "sku": "FS-TSH-WHT-L-001"
+    }
+  },
+  {
+    "model": "products.productvariant",
+    "pk": 3,
+    "fields": {
+      "product": 2,
+      "size": "32",
+      "color": "Blue",
+      "stock_quantity": 25,
+      "sku": "FS-JNS-BLU-32-001"
+    }
+  },
+  {
+    "model": "cart.discountcode",
+    "pk": 1,
+    "fields": {
+      "code": "WELCOME10",
+      "discount_percent": "10.00",
+      "min_order_amount": "500.00",
+      "max_uses": 100,
+      "used_count": 0,
+      "is_active": true,
+      "valid_from": "2024-01-01T00:00:00Z",
+      "valid_until": "2024-12-31T23:59:59Z",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "cart.discountcode",
+    "pk": 2,
+    "fields": {
+      "code": "SAVE500",
+      "discount_amount": "500.00",
+      "min_order_amount": "2000.00",
+      "max_uses": 50,
+      "used_count": 0,
+      "is_active": true,
+      "valid_from": "2024-01-01T00:00:00Z",
+      "valid_until": "2024-12-31T23:59:59Z",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  }
+]

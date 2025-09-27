@@ -69,18 +69,43 @@ def forgot_password_view(request):
             token = str(uuid.uuid4())
             PasswordReset.objects.create(user=user, token=token)
             
-            # Send email (in production, use proper email backend)
-            reset_link = f"http://localhost:8000/reset-password?token={token}"
-            send_mail(
-                'Password Reset',
-                f'Click here to reset your password: {reset_link}',
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
-            return Response({'message': 'Password reset email sent'})
+            # Create reset link
+            reset_link = f"http://localhost:3000/reset-password.html?token={token}"
+            
+            # Email content
+            subject = 'Password Reset - Fashion Store'
+            message = f'''
+            Hello {user.first_name or user.username},
+            
+            You requested a password reset for your Fashion Store account.
+            
+            Click the link below to reset your password:
+            {reset_link}
+            
+            If you didn't request this, please ignore this email.
+            
+            Best regards,
+            Fashion Store Team
+            '''
+            
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                return Response({'message': 'Password reset email sent successfully'})
+            except Exception as e:
+                print(f"Email error: {e}")
+                return Response({'error': 'Failed to send email. Please try again later.'}, 
+                              status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
         except CustomUser.DoesNotExist:
-            return Response({'message': 'Password reset email sent'})  # Don't reveal if email exists
+            # Don't reveal if email exists or not for security
+            return Response({'message': 'If this email exists, you will receive a reset link'})
+    
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])

@@ -28,6 +28,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
 
 # Application definition
 
@@ -169,3 +171,15 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'E-commerce API for Fashion Store',
     'VERSION': '1.0.0',
 }
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'pravingholap9110@gmail.com'  # Replace with your Gmail
+EMAIL_HOST_PASSWORD = 'Pravin@3050'  # Replace with Gmail App Password
+DEFAULT_FROM_EMAIL = 'Fashion Store <pravingholap9110@gmail.com>'
+
+# For development/testing, use console backend:
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
