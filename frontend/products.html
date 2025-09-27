@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Fashion Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation (same as index.html) -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fas fa-tshirt me-2"></i>Fashion Store
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="products.html">Products</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="cart.html">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge bg-primary rounded-pill position-absolute top-0 start-100 translate-middle" id="cartCount">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="userMenu" style="display: none;">
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> <span id="userName"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="orders.html">My Orders</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item" id="authMenu">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 pt-4">
+        <div class="row">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Filters</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Search -->
+                        <div class="mb-3">
+                            <label for="searchInput" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search products...">
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div class="mb-3">
+                            <label for="categoryFilter" class="form-label">Category</label>
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+
+                        <!-- Gender Filter -->
+                        <div class="mb-3">
+                            <label for="genderFilter" class="form-label">Gender</label>
+                            <select class="form-select" id="genderFilter">
+                                <option value="">All</option>
+                                <option value="men">Men</option>
+                                <option value="women">Women</option>
+                                <option value="kids">Kids</option>
+                                <option value="unisex">Unisex</option>
+                            </select>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-3">
+                            <label class="form-label">Price Range</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" class="form-control" id="minPrice" placeholder="Min">
+                                </div>
+                                <div class="col">
+                                    <input type="number" class="form-control" id="maxPrice" placeholder="Max">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Brand Filter -->
+                        <div class="mb-3">
+                            <label for="brandFilter" class="form-label">Brand</label>
+                            <input type="text" class="form-control" id="brandFilter" placeholder="Brand name">
+                        </div>
+
+                        <!-- Size Filter -->
+                        <div class="mb-3">
+                            <label class="form-label">Size</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <input type="checkbox" class="btn-check" id="sizeXS" value="XS">
+                                <label class="btn btn-outline-primary btn-sm" for="sizeXS">XS</label>
+                                <input type="checkbox" class="btn-check" id="sizeS" value="S">
+                                <label class="btn btn-outline-primary btn-sm" for="sizeS">S</label>
+                                <input type="checkbox" class="btn-check" id="sizeM" value="M">
+                                <label class="btn btn-outline-primary btn-sm" for="sizeM">M</label>
+                                <input type="checkbox" class="btn-check" id="sizeL" value="L">
+                                <label class="btn btn-outline-primary btn-sm" for="sizeL">L</label>
+                                <input type="checkbox" class="btn-check" id="sizeXL" value="XL">
+                                <label class="btn btn-outline-primary btn-sm" for="sizeXL">XL</label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary w-100 mb-2" onclick="applyFilters()">Apply Filters</button>
+                        <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">Clear All</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="col-lg-9">
+                <!-- Sort and View Options -->
+                <div class="row align-items-center mb-4">
+                    <div class="col-md-6">
+                        <p class="text-muted mb-0" id="resultsCount">Loading products...</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <select class="form-select d-inline-block w-auto" id="sortSelect">
+                            <option value="-created_at">Latest</option>
+                            <option value="name">Name A-Z</option>
+                            <option value="-name">Name Z-A</option>
+                            <option value="price">Price: Low to High</option>
+                            <option value="-price">Price: High to Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="row g-4" id="productsGrid">
+                    <!-- Products loaded dynamically -->
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-5" id="pagination">
+                    <!-- Pagination loaded dynamically -->
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/products.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            updateCartCount();
+            loadCategories();
+            loadProducts();
+        });
+    </script>
+</body>
+</html>

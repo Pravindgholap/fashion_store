@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Fashion Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fas fa-tshirt me-2"></i>Fashion Store
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="products.html">Continue Shopping</a>
+                <a class="nav-link" href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 pt-4">
+        <h2 class="mb-4">My Orders</h2>
+        
+        <div id="ordersContainer">
+            <!-- Orders loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6>Order Information</h6>
+                            <p><strong>Order Number:</strong> <span id="modalOrderNumber"></span></p>
+                            <p><strong>Order Date:</strong> <span id="modalOrderDate"></span></p>
+                            <p><strong>Status:</strong> <span id="modalOrderStatus"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Shipping Address</h6>
+                            <div id="modalShippingAddress"></div>
+                        </div>
+                    </div>
+                    
+                    <h6>Order Items</h6>
+                    <div id="modalOrderItems" class="mb-4">
+                        <!-- Items loaded dynamically -->
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Tracking Updates</h6>
+                            <div id="modalTracking">
+                                <!-- Tracking updates loaded dynamically -->
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Order Summary</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td>Subtotal</td>
+                                    <td class="text-end" id="modalSubtotal"></td>
+                                </tr>
+                                <tr>
+                                    <td>Shipping</td>
+                                    <td class="text-end" id="modalShipping"></td>
+                                </tr>
+                                <tr>
+                                    <td>Tax</td>
+                                    <td class="text-end" id="modalTax"></td>
+                                </tr>
+                                <tr id="modalDiscountRow" style="display: none;">
+                                    <td>Discount</td>
+                                    <td class="text-end text-success" id="modalDiscount"></td>
+                                </tr>
+                                <tr class="fw-bold">
+                                    <td>Total</td>
+                                    <td class="text-end" id="modalTotal"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/orders.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadOrders();
+        });
+    </script>
+</body>
+</html>
