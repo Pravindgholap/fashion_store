@@ -1,4 +1,3 @@
-// API Configuration
 const API_BASE_URL = 'http://localhost:8000/api';
 
 // Utility Functions
@@ -16,16 +15,24 @@ function showAlert(message, type = 'info') {
     
     // Auto dismiss after 5 seconds
     setTimeout(() => {
-        alertDiv.remove();
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
     }, 5000);
 }
 
 function showLoading() {
-    document.getElementById('loadingSpinner').classList.remove('d-none');
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) {
+        spinner.classList.remove('d-none');
+    }
 }
 
 function hideLoading() {
-    document.getElementById('loadingSpinner').classList.add('d-none');
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) {
+        spinner.classList.add('d-none');
+    }
 }
 
 function formatPrice(price) {
@@ -100,11 +107,14 @@ async function refreshToken() {
 async function loadCategories() {
     try {
         const response = await fetch(`${API_BASE_URL}/products/categories/`);
-        const categories = await response.json();
-        
-        updateCategoriesDropdown(categories);
-        updateCategoriesGrid(categories);
-        updateCategoryFilter(categories);
+        if (response.ok) {
+            const categories = await response.json();
+            updateCategoriesDropdown(categories);
+            updateCategoriesGrid(categories);
+            updateCategoryFilter(categories);
+        } else {
+            console.error('Failed to load categories:', response.status);
+        }
     } catch (error) {
         console.error('Error loading categories:', error);
     }
@@ -143,14 +153,27 @@ function updateCategoryFilter(categories) {
     const options = categories.map(category => 
         `<option value="${category.id}">${category.name}</option>`
     ).join('');
+    
+    // Clear existing options except the first one (All Categories)
+    const firstOption = filter.querySelector('option[value=""]');
+    filter.innerHTML = '';
+    if (firstOption) {
+        filter.appendChild(firstOption);
+    } else {
+        filter.innerHTML = '<option value="">All Categories</option>';
+    }
     filter.innerHTML += options;
 }
 
 async function loadFeaturedProducts() {
     try {
         const response = await fetch(`${API_BASE_URL}/products/featured/`);
-        const products = await response.json();
-        updateProductsGrid(products, 'featuredProducts');
+        if (response.ok) {
+            const products = await response.json();
+            updateProductsGrid(products, 'featuredProducts');
+        } else {
+            console.error('Failed to load featured products:', response.status);
+        }
     } catch (error) {
         console.error('Error loading featured products:', error);
     }
@@ -159,8 +182,12 @@ async function loadFeaturedProducts() {
 async function loadTrendingProducts() {
     try {
         const response = await fetch(`${API_BASE_URL}/products/trending/`);
-        const products = await response.json();
-        updateProductsGrid(products, 'trendingProducts');
+        if (response.ok) {
+            const products = await response.json();
+            updateProductsGrid(products, 'trendingProducts');
+        } else {
+            console.error('Failed to load trending products:', response.status);
+        }
     } catch (error) {
         console.error('Error loading trending products:', error);
     }
@@ -169,6 +196,11 @@ async function loadTrendingProducts() {
 function updateProductsGrid(products, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
+    
+    if (!products || products.length === 0) {
+        container.innerHTML = '<div class="col-12"><p class="text-center text-muted">No products available</p></div>';
+        return;
+    }
     
     container.innerHTML = products.map(product => `
         <div class="col-lg-3 col-md-6 fade-in">
@@ -183,7 +215,7 @@ function updateProductsGrid(products, containerId) {
                     <h6 class="product-title">${product.name}</h6>
                     <div class="d-flex align-items-center mb-2">
                         <div class="rating me-2">
-                            ${generateStarRating(product.average_rating)}
+                            ${generateStarRating(product.average_rating || 0)}
                         </div>
                         <small class="text-muted">(${product.average_rating || 0})</small>
                     </div>
@@ -192,7 +224,7 @@ function updateProductsGrid(products, containerId) {
                         ${formatPrice(product.current_price)}
                     </div>
                     <div class="mt-2">
-                        <small class="text-muted">${product.category_name}</small>
+                        <small class="text-muted">${product.category_name || 'Fashion'}</small>
                     </div>
                 </div>
             </div>
@@ -237,6 +269,8 @@ async function updateCartCount() {
         if (response.ok) {
             const cart = await response.json();
             cartBadge.textContent = cart.total_items || 0;
+        } else {
+            cartBadge.textContent = '0';
         }
     } catch (error) {
         console.error('Error updating cart count:', error);

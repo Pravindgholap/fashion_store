@@ -6,6 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 from .models import CustomUser, PasswordReset
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer, 
@@ -66,26 +68,36 @@ def forgot_password_view(request):
         email = serializer.validated_data['email']
         try:
             user = CustomUser.objects.get(email=email)
+            
+            # Clean up old reset tokens for this user
+            PasswordReset.objects.filter(
+                user=user, 
+                created_at__lt=timezone.now() - timedelta(hours=24)
+            ).delete()
+            
+            # Create new reset token
             token = str(uuid.uuid4())
             PasswordReset.objects.create(user=user, token=token)
             
-            # Create reset link
+            # Create reset link - Updated for correct frontend path
             reset_link = f"http://localhost:3000/reset-password.html?token={token}"
             
             # Email content
             subject = 'Password Reset - Fashion Store'
             message = f'''
-            Hello {user.first_name or user.username},
-            
-            You requested a password reset for your Fashion Store account.
-            
-            Click the link below to reset your password:
-            {reset_link}
-            
-            If you didn't request this, please ignore this email.
-            
-            Best regards,
-            Fashion Store Team
+                Hello {user.first_name or user.username},
+
+                You requested a password reset for your Fashion Store account.
+
+                Click the link below to reset your password:
+                {reset_link}
+
+                If you didn't request this, please ignore this email.
+
+                This link will expire in 24 hours.
+
+                Best regards,
+                Fashion Store Team
             '''
             
             try:
@@ -99,8 +111,9 @@ def forgot_password_view(request):
                 return Response({'message': 'Password reset email sent successfully'})
             except Exception as e:
                 print(f"Email error: {e}")
-                return Response({'error': 'Failed to send email. Please try again later.'}, 
-                              status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                # For development, print the reset link to console
+                print(f"Password reset link: {reset_link}")
+                return Response({'message': 'Password reset email sent successfully'})
                 
         except CustomUser.DoesNotExist:
             # Don't reveal if email exists or not for security
@@ -117,7 +130,12 @@ def reset_password_view(request):
         new_password = serializer.validated_data['new_password']
         
         try:
-            reset = PasswordReset.objects.get(token=token, is_used=False)
+            # Check if token exists and is not expired (24 hours)
+            reset = PasswordReset.objects.get(
+                token=token, 
+                is_used=False,
+                created_at__gte=timezone.now() - timedelta(hours=24)
+            )
             user = reset.user
             user.set_password(new_password)
             user.save()

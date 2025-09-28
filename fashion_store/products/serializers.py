@@ -7,9 +7,19 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    
     class Meta:
         model = ProductImage
         fields = ['id', 'image', 'alt_text', 'is_primary']
+    
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if obj.image:
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
+        return None
 
 class ProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,14 +49,27 @@ class ProductListSerializer(serializers.ModelSerializer):
         ]
 
     def get_primary_image(self, obj):
+        request = self.context.get('request')
+        
+        # Try to get primary image first
         primary_image = obj.images.filter(is_primary=True).first()
         if primary_image:
-            return self.context['request'].build_absolute_uri(primary_image.image.url)
+            if request:
+                return request.build_absolute_uri(primary_image.image.url)
+            return primary_image.image.url
+        
+        # Fallback to first image
+        first_image = obj.images.first()
+        if first_image:
+            if request:
+                return request.build_absolute_uri(first_image.image.url)
+            return first_image.image.url
+        
         return None
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
-    images = ProductImageSerializer(many=True, read_only=True)
+    images = ProductImageSerializer(many=True, read_only=True, context={'request': None})
     variants = ProductVariantSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
     current_price = serializers.ReadOnlyField()
@@ -55,6 +78,18 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        
+        # Fix image URLs in the images array
+        if data.get('images') and request:
+            for image in data['images']:
+                if image.get('image') and not image['image'].startswith('http'):
+                    image['image'] = request.build_absolute_uri(image['image'])
+        
+        return data
 
 class ProductCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:

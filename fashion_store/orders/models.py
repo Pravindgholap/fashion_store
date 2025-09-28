@@ -2,9 +2,9 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from products.models import ProductVariant
 from cart.models import DiscountCode
+from django.conf import settings
 import uuid
 
-User = get_user_model()
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -25,7 +25,7 @@ class Order(models.Model):
     ]
 
     order_number = models.CharField(max_length=100, unique=True, blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     
     # Shipping Information
