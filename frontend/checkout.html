@@ -7,19 +7,21 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <style>
+        .address-card {
+            transition: all 0.3s ease;
+        }
+        .address-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .address-card.selected {
+            border-color: #0d6efd !important;
+            background-color: #f8f9fa;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">
-                <i class="fas fa-tshirt me-2"></i>Fashion Store
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="cart.html">Back to Cart</a>
-            </div>
-        </div>
-    </nav>
+    
 
     <div class="container mt-5 pt-4">
         <div class="row">
@@ -46,13 +48,30 @@
                     </div>
                 </div>
 
-                <!-- Shipping Information -->
-                <div class="card mb-4">
+                <!-- Saved Addresses Section -->
+                <div class="card mb-4" id="savedAddressesCard">
+                    <div class="card-header">
+                        <h5 class="mb-0">Select Delivery Address</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="savedAddressesContainer">
+                            <!-- Addresses loaded dynamically -->
+                            <div class="text-center py-3">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Information (Manual Entry) -->
+                <div class="card mb-4" id="manualAddressCard">
                     <div class="card-header">
                         <h5 class="mb-0">Shipping Information</h5>
                     </div>
                     <div class="card-body">
-                        <form id="shippingForm">
+                        <form id="shippingForm" style="display: none;">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="shippingName" class="form-label">Full Name *</label>
@@ -100,13 +119,13 @@
                                     <input type="text" class="form-control" id="shippingPostalCode" required>
                                 </div>
                             </div>
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="saveAddress">
-                                <label class="form-check-label" for="saveAddress">
-                                    Save this address for future orders
-                                </label>
-                            </div>
                         </form>
+                        <div class="form-check mb-3" id="saveAddressCheckbox" style="display: none;">
+                            <input class="form-check-input" type="checkbox" id="saveAddress">
+                            <label class="form-check-label" for="saveAddress">
+                                Save this address for future orders
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -183,38 +202,7 @@
                             <!-- Order items loaded dynamically -->
                         </div>
                         
-                        <div class="order-totals">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Subtotal</span>
-                                <span id="orderSubtotal">₹0</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Shipping</span>
-                                <span id="orderShipping">₹0</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Tax (GST 18%)</span>
-                                <span id="orderTax">₹0</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2" id="orderDiscountRow" style="display: none;">
-                                <span>Discount</span>
-                                <span id="orderDiscount" class="text-success">₹0</span>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between mb-3">
-                                <strong>Total</strong>
-                                <strong id="orderTotal">₹0</strong>
-                            </div>
-                        </div>
-
-                        <!-- Discount Code -->
-                        <div class="mb-3">
-                            <label for="orderDiscountCode" class="form-label">Discount Code</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="orderDiscountCode" placeholder="Enter code">
-                                <button class="btn btn-outline-primary" type="button" onclick="applyOrderDiscount()">Apply</button>
-                            </div>
-                        </div>
+                        
 
                         <button class="btn btn-primary w-100 btn-lg" onclick="placeOrder()">
                             Place Order

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from decimal import Decimal
-from .models import Order, OrderItem, OrderTracking
+from .models import Order, OrderItem, OrderTracking, UserAddress
 from cart.models import Cart, DiscountCode
 from .serializers import (
     OrderListSerializer, OrderDetailSerializer, CreateOrderSerializer,
@@ -40,6 +40,33 @@ def create_order_view(request):
     serializer = CreateOrderSerializer(data=request.data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Handle saved address
+    shipping_data = {}
+    if request.data.get('use_saved_address'):
+        address_id = request.data.get('saved_address_id')
+        try:
+            address = UserAddress.objects.get(id=address_id, user=request.user)
+            shipping_data = {
+                'saved_address': address,
+                'shipping_name': address.full_name,
+                'shipping_email': request.user.email,
+                'shipping_phone': address.phone,
+                'shipping_address_line1': address.address_line1,
+                'shipping_address_line2': address.address_line2,
+                'shipping_city': address.city,
+                'shipping_state': address.state,
+                'shipping_postal_code': address.postal_code,
+                'shipping_country': address.country,
+            }
+        except UserAddress.DoesNotExist:
+            return Response({'error': 'Saved address not found'}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        # Use manual entry
+        validated_data = serializer.validated_data.copy()
+        validated_data.pop('use_saved_address', None)
+        validated_data.pop('saved_address_id', None)
+        shipping_data = validated_data
     
     # Check stock availability
     for cart_item in cart.items.all():
@@ -80,7 +107,8 @@ def create_order_view(request):
             shipping_cost=shipping_cost,
             tax_amount=tax_amount,
             total_amount=total_amount,
-            **serializer.validated_data
+            payment_method=request.data.get('payment_method'),
+            **shipping_data
         )
         
         # Create order items and update stock

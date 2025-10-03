@@ -4,6 +4,8 @@ from products.models import ProductVariant
 from cart.models import DiscountCode
 from django.conf import settings
 import uuid
+from users.models import UserAddress
+
 
 
 class Order(models.Model):
@@ -58,6 +60,9 @@ class Order(models.Model):
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    saved_address = models.ForeignKey(UserAddress, on_delete=models.SET_NULL, 
+                                      null=True, blank=True, related_name='orders')
 
     class Meta:
         ordering = ['-created_at']

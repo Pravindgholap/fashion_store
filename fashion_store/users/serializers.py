@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from .models import CustomUser, PasswordReset
+from .models import CustomUser, PasswordReset, UserAddress
 import uuid
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -59,3 +59,11 @@ class ResetPasswordSerializer(serializers.Serializer):
         if attrs['new_password'] != attrs['confirm_password']:
             raise serializers.ValidationError("Passwords don't match")
         return attrs
+    
+class UserAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAddress
+        fields = ['id', 'label', 'full_name', 'phone', 'address_line1', 
+                  'address_line2', 'city', 'state', 'postal_code', 'country', 
+                  'is_default', 'created_at']
+        read_only_fields = ['id', 'created_at']

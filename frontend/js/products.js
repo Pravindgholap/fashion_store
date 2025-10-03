@@ -1,3 +1,4 @@
+// Products page functionality
 let currentPage = 1;
 let currentFilters = {};
 let totalPages = 1;
@@ -73,35 +74,46 @@ function displayProducts(products) {
     
     grid.innerHTML = products.map(product => `
         <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card product-card h-100" onclick="window.location.href='product-detail.html?id=${product.id}'">
-                <div class="product-image">
+            <div class="card product-card h-100">
+                <div class="product-image" onclick="viewProductDetails(${product.id})" style="cursor: pointer;">
                     <img src="${product.primary_image || 'https://via.placeholder.com/300x250'}" 
                          alt="${product.name}" loading="lazy">
                     ${product.discount_price ? '<span class="product-badge">Sale</span>' : ''}
                     ${product.is_featured ? '<span class="product-badge" style="right: 12px; left: auto; background: #28a745;">Featured</span>' : ''}
                 </div>
-                <div class="product-info">
-                    <h6 class="product-title">${product.name}</h6>
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="rating me-2">
-                            ${generateStarRating(product.average_rating || 0)}
+                <div class="card-body d-flex flex-column">
+                    <div class="flex-grow-1" onclick="viewProductDetails(${product.id})" style="cursor: pointer;">
+                        <h6 class="product-title">${product.name}</h6>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="rating me-2">
+                                ${generateStarRating(product.average_rating || 0)}
+                            </div>
+                            <small class="text-muted">(${product.average_rating || 0})</small>
                         </div>
-                        <small class="text-muted">(${product.average_rating || 0})</small>
+                        <div class="product-price">
+                            ${product.discount_price ? `<span class="original-price">${formatPrice(product.price)}</span>` : ''}
+                            ${formatPrice(product.current_price)}
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">${product.category_name || 'Fashion'} • ${product.brand || 'Fashion Store'}</small>
+                        </div>
                     </div>
-                    <div class="product-price">
-                        ${product.discount_price ? `<span class="original-price">${formatPrice(product.price)}</span>` : ''}
-                        ${formatPrice(product.current_price)}
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-outline-primary btn-sm flex-fill" onclick="viewProductDetails(${product.id})">
+                            <i></i>View Details
+                        </button>
+                        <button class="btn btn-primary btn-sm flex-fill" onclick="quickAddToCart(${product.id})">
+                            <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                        </button>
                     </div>
-                    <div class="mt-2">
-                        <small class="text-muted">${product.category_name || 'Fashion'} • ${product.brand || 'Fashion Store'}</small>
-                    </div>
-                    <button class="btn btn-primary btn-sm mt-2 w-100" onclick="event.stopPropagation(); quickAddToCart(${product.id})">
-                        <i class="fas fa-shopping-cart me-2"></i>Quick Add
-                    </button>
                 </div>
             </div>
         </div>
     `).join('');
+}
+
+function viewProductDetails(productId) {
+    window.location.href = `product-detail.html?id=${productId}`;
 }
 
 function updateResultsCount(count) {
@@ -216,33 +228,6 @@ function clearFilters() {
     loadProducts(1);
 }
 
-// async function quickAddToCart(productId) {
-//     try {
-//         const response = await fetch(`${API_BASE_URL}/products/${productId}/`);
-//         if (!response.ok) {
-//             throw new Error('Failed to fetch product details');
-//         }
-        
-//         const product = await response.json();
-        
-//         if (product.variants && product.variants.length > 0) {
-//             const availableVariant = product.variants.find(v => v.is_in_stock);
-//             if (availableVariant) {
-//                 await addToCart(availableVariant.id, 1);
-//             } else {
-//                 showAlert('Product is out of stock', 'warning');
-//             }
-//         } else {
-//             showAlert('Product variants not available', 'warning');
-//         }
-//     } catch (error) {
-//         console.error('Error in quick add to cart:', error);
-//         showAlert('Error adding product to cart', 'danger');
-//     }
-// }
-
-
-
 async function quickAddToCart(productId) {
     // Check authentication first
     const token = localStorage.getItem('access_token');
@@ -259,7 +244,7 @@ async function quickAddToCart(productId) {
         const clickedBtn = event.target.closest('button');
         const originalHTML = clickedBtn.innerHTML;
         clickedBtn.disabled = true;
-        clickedBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
+        clickedBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Adding...';
 
         // First, fetch product details to get available variants
         const productResponse = await fetch(`${API_BASE_URL}/products/${productId}/`);
@@ -296,12 +281,12 @@ async function quickAddToCart(productId) {
             updateCartCount();
             
             // Update button to show success
-            clickedBtn.innerHTML = '<i class="fas fa-check me-2"></i>Added!';
+            clickedBtn.innerHTML = '<i class="fas fa-check me-1"></i>Added!';
             clickedBtn.classList.remove('btn-primary');
             clickedBtn.classList.add('btn-success');
             
             setTimeout(() => {
-                clickedBtn.innerHTML = originalHTML;
+                clickedBtn.innerHTML = '<i class="fas fa-cart-plus me-1"></i>Add to Cart';
                 clickedBtn.classList.remove('btn-success');
                 clickedBtn.classList.add('btn-primary');
                 clickedBtn.disabled = false;
@@ -333,7 +318,7 @@ async function quickAddToCart(productId) {
         // Reset button
         const clickedBtn = event.target.closest('button');
         if (clickedBtn) {
-            clickedBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Quick Add';
+            clickedBtn.innerHTML = '<i class="fas fa-cart-plus me-1"></i>Add to Cart';
             clickedBtn.disabled = false;
         }
     }

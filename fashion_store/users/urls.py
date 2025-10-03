@@ -9,4 +9,6 @@ urlpatterns = [
     path('forgot-password/', views.forgot_password_view, name='forgot_password'),
     path('reset-password/', views.reset_password_view, name='reset_password'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('addresses/', views.user_addresses_view, name='user-addresses'),
+    path('addresses/<int:address_id>/', views.user_address_detail_view, name='user-address-detail'),
 ]

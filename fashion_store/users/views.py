@@ -8,11 +8,10 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
-from .models import CustomUser, PasswordReset
+from .models import CustomUser, PasswordReset, UserAddress
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer, 
-    UserProfileSerializer, ForgotPasswordSerializer, ResetPasswordSerializer
-)
+    UserProfileSerializer, ForgotPasswordSerializer, ResetPasswordSerializer, UserAddressSerializer)
 import uuid
 
 class RegisterView(generics.CreateAPIView):
@@ -145,3 +144,42 @@ def reset_password_view(request):
         except PasswordReset.DoesNotExist:
             return Response({'error': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def user_addresses_view(request):
+    if request.method == 'GET':
+        addresses = UserAddress.objects.filter(user=request.user)
+        serializer = UserAddressSerializer(addresses, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = UserAddressSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def user_address_detail_view(request, address_id):
+    try:
+        address = UserAddress.objects.get(id=address_id, user=request.user)
+    except UserAddress.DoesNotExist:
+        return Response({'error': 'Address not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        serializer = UserAddressSerializer(address)
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        serializer = UserAddressSerializer(address, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'DELETE':
+        address.delete()
+        return Response({'message': 'Address deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
